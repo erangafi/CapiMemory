@@ -126,10 +126,21 @@
     }
 
     .key-point {
-      padding: 10px;
+      display: flex;
+      align-items: center;
+      padding: 8px 10px;
       background-color: #f9f9f9;
       margin-top: 5px;
       border-radius: 5px;
+    }
+
+    .key-point input[type="checkbox"] {
+      margin-right: 10px;
+    }
+
+    .key-point span.checked {
+      text-decoration: line-through;
+      color: #777;
     }
 
     .bottom-nav {
@@ -151,8 +162,6 @@
 </head>
 <body>
 
-  
-  
   <div class="header">
     <div class="title">Event Title Goes Here</div>
   </div>
@@ -161,19 +170,12 @@
     <img src="https://via.placeholder.com/600x200" class="hero-image" alt="Cover Image" />
 
     <div class="media-thumbs">
-      <div class="media-thumb">
-        <img src="https://via.placeholder.com/100" alt="Media" />
-        <div class="cover-text">COVER</div>
-      </div>
-      <div class="media-thumb">
-        <img src="https://via.placeholder.com/100" alt="Media" />
-        <div class="cover-text">VIDEO</div>
-      </div>
+      <!-- Media thumbnails will be inserted here -->
     </div>
 
     <div class="location-date">
-      <div class="location">New York City</div>
-      <div class="date">March 24, 2025</div>
+      <div class="location">Location Placeholder</div>
+      <div class="date">Date Placeholder</div>
     </div>
 
     <div class="tabs">
@@ -185,39 +187,103 @@
     <div class="section">
       <div class="section-title">Overview</div>
       <div class="section-content">
-        This is a summary of the event. It includes background details and key information. Overview content goes here.
+        This is a summary of the event. Overview content goes here.
       </div>
     </div>
 
     <div class="section">
       <div class="section-title">Key Points</div>
-      <div class="key-point">Key Point 1: Important topic discussed.</div>
-      <div class="key-point">Key Point 2: Another highlight from the event.</div>
-      <div class="key-point">Key Point 3: Final major insight shared.</div>
+      <!-- Key points will be inserted here -->
     </div>
   </div>
 
   <script>
-  // Helper to get query parameter
-  function getQueryParam(name) {
-    const params = new URLSearchParams(window.location.search);
-    return params.get(name);
-  }
-
-  // Get 'data' param, decode, and parse JSON
-  const rawData = getQueryParam('data');
-  if (rawData) {
-    try {
-      const jsonData = JSON.parse(decodeURIComponent(rawData));
-      console.log(jsonData);
-      if (jsonData.title) {
-        // Update the title in the header
-        document.querySelector('.title').textContent = jsonData.title;
+    document.addEventListener('DOMContentLoaded', function () {
+      function getQueryParam(name) {
+        const params = new URLSearchParams(window.location.search);
+        return params.get(name);
       }
-    } catch (e) {
-      console.error('Invalid JSON in query param:', e);
-    }
-  }
-</script>
+
+      const rawData = getQueryParam('data');
+      if (rawData) {
+        try {
+          const jsonData = JSON.parse(decodeURIComponent(rawData));
+
+          // Set title
+          if (jsonData.title) {
+            document.querySelector('.title').textContent = jsonData.title;
+          }
+
+          // Hero image
+          if (jsonData.heroImage) {
+            document.querySelector('.hero-image').src = jsonData.heroImage;
+          }
+
+          // Media thumbnails
+          if (Array.isArray(jsonData.media)) {
+            const mediaContainer = document.querySelector('.media-thumbs');
+            mediaContainer.innerHTML = '';
+            jsonData.media.forEach(item => {
+              const div = document.createElement('div');
+              div.className = 'media-thumb';
+              div.innerHTML = `
+                <img src="${item.url}" alt="${item.type}" />
+                <div class="cover-text">${item.type}</div>
+              `;
+              mediaContainer.appendChild(div);
+            });
+          }
+
+          // Location and date
+          if (jsonData.location) {
+            document.querySelector('.location').textContent = jsonData.location;
+          }
+          if (jsonData.date) {
+            document.querySelector('.date').textContent = jsonData.date;
+          }
+
+          // Overview
+          if (jsonData.overview) {
+            document.querySelector('.section-content').textContent = jsonData.overview;
+          }
+
+          // Key Points with checkboxes
+          if (Array.isArray(jsonData.keyPoints)) {
+            const keyPointsSection = document.querySelectorAll('.section')[1];
+            const content = jsonData.keyPoints.map((point, index) => `
+              <label class="key-point">
+                <input 
+                  type="checkbox" 
+                  ${point.checked ? 'checked' : ''} 
+                  data-index="${index}"
+                />
+                <span class="${point.checked ? 'checked' : ''}">${point.text}</span>
+              </label>
+            `).join('');
+            keyPointsSection.innerHTML = `
+              <div class="section-title">Key Points</div>
+              ${content}
+            `;
+
+            // Add checkbox event listeners
+            keyPointsSection.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+              cb.addEventListener('change', function () {
+                const index = parseInt(this.getAttribute('data-index'));
+                const span = this.nextElementSibling;
+                if (this.checked) {
+                  span.classList.add('checked');
+                } else {
+                  span.classList.remove('checked');
+                }
+              });
+            });
+          }
+
+        } catch (e) {
+          console.error('Invalid JSON in query param:', e);
+        }
+      }
+    });
+  </script>
 </body>
 </html>
