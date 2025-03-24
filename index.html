@@ -184,17 +184,23 @@
       <div class="tab">Media</div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Overview</div>
-      <div class="section-content">
-        This is a summary of the event. Overview content goes here.
-      </div>
+    <div class="tab-content" id="transcription-tab" style="display:none;"></div>
+    <div class="tab-content" id="summary-tab">
+        <div class="section">
+            <div class="section-title">Overview</div>
+            <div class="section-content">
+              This is a summary of the event. Overview content goes here.
+            </div>
+          </div>
+      
+          <div class="section">
+            <div class="section-title">Key Points</div>
+            <!-- Key points will be inserted here -->
+          </div>
     </div>
+    <div class="tab-content" id="media-tab" style="display:none;"></div>
 
-    <div class="section">
-      <div class="section-title">Key Points</div>
-      <!-- Key points will be inserted here -->
-    </div>
+    
   </div>
 
   <script>
@@ -279,6 +285,34 @@
             });
           }
 
+          // Handle transcription rendering
+        if (Array.isArray(jsonData.transcription)) {
+            const transEl = document.getElementById('transcription-tab');
+            transEl.innerHTML = jsonData.transcription.map(entry => `
+                <div style="margin-top: 10px;">
+                <div style="font-weight: bold; margin-bottom: 5px;">
+                    ${entry.speaker} <span style="font-weight: normal; font-size: 12px;">${entry.start}–${entry.end}</span>
+                </div>
+                <div style="background: #f9f9f9; border-radius: 10px; padding: 10px; font-size: 14px;">
+                    ${entry.text}
+                </div>
+                </div>
+            `).join('');
+        }
+
+        // Tab switching logic
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active from all
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const selected = tab.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = content.id === `${selected}-tab` ? 'block' : 'none';
+                });
+            });
+        });
         } catch (e) {
           console.error('Invalid JSON in query param:', e);
         }
