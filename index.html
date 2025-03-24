@@ -151,27 +151,7 @@
 </head>
 <body>
 
-  <script>
-  // Helper to get query parameter
-  function getQueryParam(name) {
-    const params = new URLSearchParams(window.location.search);
-    return params.get(name);
-  }
-
-  // Get 'data' param, decode, and parse JSON
-  const rawData = getQueryParam('data');
-  if (rawData) {
-    try {
-      const jsonData = JSON.parse(decodeURIComponent(rawData));
-      if (jsonData.title) {
-        // Update the title in the header
-        document.querySelector('.title').textContent = jsonData.title;
-      }
-    } catch (e) {
-      console.error('Invalid JSON in query param:', e);
-    }
-  }
-</script>
+  
   
   <div class="header">
     <div class="title">Event Title Goes Here</div>
@@ -217,5 +197,26 @@
     </div>
   </div>
 
+  <script>
+  // Helper to get query parameter
+  function getQueryParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
+  }
+
+  // Get 'data' param, decode, and parse JSON
+  const rawData = getQueryParam('data');
+  if (rawData) {
+    try {
+      const jsonData = JSON.parse(decodeURIComponent(rawData));
+      if (jsonData.title) {
+        // Update the title in the header
+        document.querySelector('.title').textContent = jsonData.title;
+      }
+    } catch (e) {
+      console.error('Invalid JSON in query param:', e);
+    }
+  }
+</script>
 </body>
 </html>
