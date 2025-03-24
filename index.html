@@ -209,6 +209,7 @@
   if (rawData) {
     try {
       const jsonData = JSON.parse(decodeURIComponent(rawData));
+      console.log(jsonData);
       if (jsonData.title) {
         // Update the title in the header
         document.querySelector('.title').textContent = jsonData.title;
