@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Item Detail</title>
+  <title>Capi</title>
   <style>
     body {
       margin: 0;
@@ -139,7 +139,7 @@
     }
 
     .key-point span.checked {
-      text-decoration: line-through;
+      /* text-decoration: line-through; */
       color: #777;
     }
 
@@ -179,9 +179,9 @@
     </div>
 
     <div class="tabs">
-      <div class="tab">Transcription</div>
-      <div class="tab active">Summary</div>
-      <div class="tab">Media</div>
+      <div class="tab" data-tab="transcription">Transcription</div>
+      <div class="tab active" data-tab="summary">Summary</div>
+      <div class="tab" data-tab="media">Media</div>
     </div>
 
     <div class="tab-content" id="transcription-tab" style="display:none;"></div>
@@ -189,7 +189,7 @@
         <div class="section">
             <div class="section-title">Overview</div>
             <div class="section-content">
-              This is a summary of the event. Overview content goes here.
+              Summary
             </div>
           </div>
       
@@ -214,7 +214,7 @@
       if (rawData) {
         try {
           const jsonData = JSON.parse(decodeURIComponent(rawData));
-
+          console.log(jsonData);
           // Set title
           if (jsonData.title) {
             document.querySelector('.title').textContent = jsonData.title;
@@ -234,10 +234,19 @@
               div.className = 'media-thumb';
               div.innerHTML = `
                 <img src="${item.url}" alt="${item.type}" />
-                <div class="cover-text">${item.type}</div>
-              `;
+                `;
+              if(item.type === 'COVER') {
+                div.innerHTML += `<div class="cover-text">${item.type}</div>`
+              }
               mediaContainer.appendChild(div);
             });
+
+            const mediaTab = document.getElementById('media-tab');
+            mediaTab.innerHTML = `<div class="media-thumbs">` + jsonData.media.map(item => `
+              <div class="media-thumb"  style="margin-top: 10px;">
+                <img src="${item.url}" alt="${item.type}" />
+              </div>
+            `).join('') + `</div>`;
           }
 
           // Location and date
@@ -259,6 +268,7 @@
             const content = jsonData.keyPoints.map((point, index) => `
               <label class="key-point">
                 <input 
+                  disabled 
                   type="checkbox" 
                   ${point.checked ? 'checked' : ''} 
                   data-index="${index}"
@@ -302,17 +312,17 @@
 
         // Tab switching logic
         document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Remove active from all
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
+          tab.addEventListener('click', () => {
+              document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+              tab.classList.add('active');
 
-                const selected = tab.dataset.tab;
-                document.querySelectorAll('.tab-content').forEach(content => {
-                content.style.display = content.id === `${selected}-tab` ? 'block' : 'none';
-                });
-            });
-        });
+              const selected = tab.dataset.tab;
+              document.querySelectorAll('.tab-content').forEach(content => {
+                  content.style.display = content.id === `${selected}-tab` ? 'block' : 'none';
+              });
+          });
+      });
+
         } catch (e) {
           console.error('Invalid JSON in query param:', e);
         }
